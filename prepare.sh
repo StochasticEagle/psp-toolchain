@@ -1,9 +1,12 @@
 #!/bin/bash
+set -e
 
 echo "Detecting OS and installing packages required for PSP Toolchain"
 
+UNAME_S="$(uname -s)"
+
 #Handle macOS first
-if [ "$(uname -s)" = "Darwin" ]; then
+if [ "$UNAME_S" = "Darwin" ]; then
   ## Check if using brew
   if command -v brew &> /dev/null; then
     brew update
@@ -14,6 +17,31 @@ if [ "$(uname -s)" = "Darwin" ]; then
   if command -v port &> /dev/null; then
     sudo port install autoconf automake cmake doxygen gsed libelf libtool pkgconfig
   fi
+elif [[ "$UNAME_S" == MINGW* ||
+      "$UNAME_S" == MSYS_* ||
+      "$UNAME_S" == UCRT64* ]]; then
+
+    command -v pacman >/dev/null 2>&1 || {
+        echo "ERROR: MSYS2 pacman not found."
+        exit 1
+    }
+
+    pacman -S --needed --noconfirm \
+        base-devel \
+        git \
+        patch \
+        wget \
+        tar \
+        pkgconf \
+        meson \
+        ninja \
+        libarchive-devel \
+        openssl-devel \
+        libgpg-error-devel \
+        libgpgme-devel \
+        libcurl-devel
+
+    exit 0
 else
 
     TESTOS=$(cat /etc/os-release | grep -w "ID" | cut -d '=' -f2)
