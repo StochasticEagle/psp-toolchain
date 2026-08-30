@@ -1,25 +1,22 @@
 #!/bin/bash
-# psp-pacman.sh by fjtrujy
+# psp-pacman.sh
 
-## Download the source code.
-REPO_URL="https://github.com/StochasticEagle/psp-pacman"
-REPO_FOLDER="psp-pacman"
-BRANCH_NAME="master"
-if test ! -d "$REPO_FOLDER"; then
-	git clone --depth 1 -b $BRANCH_NAME $REPO_URL && cd $REPO_FOLDER || { exit 1; }
-else
-	cd $REPO_FOLDER && git fetch origin && git reset --hard origin/${BRANCH_NAME} || { exit 1; }
-fi
+set -e
 
-## Determine the maximum number of processes that Make can work with.
-PROC_NR=$(getconf _NPROCESSORS_ONLN)
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SOURCE="${ROOT}/components/psp-pacman"
 
 # TODO: Fix PACMAN compilation issues for Windows
 OSVER=$(uname)
-if [ "${OSVER:0:5}" == MINGW ]; then
-	exit 0;
+if [ "${OSVER:0:5}" == "MINGW" ]; then
+    exit 0
 fi
 
+if [ ! -f "${SOURCE}/pacman.sh" ]; then
+    echo "ERROR: psp-pacman submodule is not initialized."
+    echo "Run: git submodule update --init --recursive --depth=1"
+    exit 1
+fi
 
-## Compile and install.
-./pacman.sh || { exit 1; }
+cd "${SOURCE}"
+./pacman.sh

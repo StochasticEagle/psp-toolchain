@@ -1,0 +1,10 @@
+[submodule "components/psp-toolchain-allegrex"]
+	path = components/psp-toolchain-allegrex
+	url = https://github.com/StochasticEagle/psp-toolchain-allegrex.git
+	branch = master
+	shallow = true
+[submodule "components/psp-pacman"]
+	path = components/psp-pacman
+	url = https://github.com/StochasticEagle/psp-pacman.git
+	branch = master
+	shallow = true
