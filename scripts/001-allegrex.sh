@@ -2,8 +2,8 @@
 # allegrex.sh by Francisco Javier Trujillo Mata (fjtrujy@gmail.com)
 
 ## Download the source code.
-REPO_URL="https://github.com/pspdev/psptoolchain-allegrex"
-REPO_FOLDER="psptoolchain-allegrex"
+REPO_URL="https://github.com/StochasticEagle/psp-toolchain-allegrex"
+REPO_FOLDER="psp-toolchain-allegrex"
 
 # Checking if a specific TAG has been selected, it is passed using parameter $1
 [  -z "$1" ] && REPO_REFERENCE="main" || REPO_REFERENCE=$1
