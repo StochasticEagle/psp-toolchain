@@ -7,14 +7,14 @@ This program will automatically build and install the whole compiler and other t
 
 ## **ATENTION!**
 
-If you're trying to install in your machine the **WHOLE PSP Development Environment** this is **NOT** the repo to use, you should use instead the [pspdev](https://github.com/pspdev/pspdev "pspdev") repo.
+If you're trying to install in your machine the **WHOLE PSP Development Environment** this is **NOT** the repo to use, you should use instead the [pspdev](https://github.com/StochasticEagle/pspdev "pspdev") repo.
 
 ## What these scripts do
 
 These scripts download (`git clone`) and install:
 
--   [psptoolchain-allegrex](https://github.com/pspdev/psptoolchain-allegrex "psptoolchain-allegrex")
--   [psp-pacman](https://github.com/pspdev/psp-pacman "psp-pacman")
+-   [psptoolchain-allegrex](https://github.com/StochasticEagle/psptoolchain-allegrex "psptoolchain-allegrex")
+-   [psp-pacman](https://github.com/StochasticEagle/psp-pacman "psp-pacman")
 
 
 It also installs the following wrapper scripts:
