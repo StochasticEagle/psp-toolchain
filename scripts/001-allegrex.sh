@@ -1,18 +1,16 @@
 #!/bin/bash
-# allegrex.sh by Francisco Javier Trujillo Mata (fjtrujy@gmail.com)
+# allegrex.sh
 
-## Download the source code.
-REPO_URL="https://github.com/pspdev/psptoolchain-allegrex"
-REPO_FOLDER="psptoolchain-allegrex"
+set -e
 
-# Checking if a specific TAG has been selected, it is passed using parameter $1
-[  -z "$1" ] && REPO_REFERENCE="main" || REPO_REFERENCE=$1
-echo "Using repo reference $REPO_REFERENCE"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SOURCE="${ROOT}/components/psp-toolchain-allegrex"
 
-if test ! -d "$REPO_FOLDER"; then
-  git clone $REPO_URL -b "${REPO_REFERENCE}" || exit 1
+if [ ! -f "${SOURCE}/toolchain.sh" ]; then
+    echo "ERROR: psp-toolchain-allegrex submodule is not initialized."
+    echo "Run: git submodule update --init --recursive --depth=1"
+    exit 1
 fi
-cd "$REPO_FOLDER" && git fetch origin && git reset --hard "origin/${REPO_REFERENCE}" && git checkout "${REPO_REFERENCE}" || exit 1
 
-## Build and install.
-./toolchain.sh || { exit 1; }
+cd "${SOURCE}"
+./toolchain.sh

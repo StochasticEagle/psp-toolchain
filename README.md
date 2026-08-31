@@ -14,11 +14,17 @@ If you're trying to install in your machine the **WHOLE PSP Development Environm
 These scripts download (`git clone`) and install:
 
 -   [psptoolchain-allegrex](https://github.com/pspdev/psptoolchain-allegrex "psptoolchain-allegrex")
--   [psptoolchain-extra](https://github.com/pspdev/psptoolchain-extra "psptoolchain-extra")
+-   [psp-pacman](https://github.com/pspdev/psp-pacman "psp-pacman")
+
+
+It also installs the following wrapper scripts:
+
+- psp-cmake
+- psp-pkg-config
 
 ## Requirements
 
-1.  Install gcc/clang, make, cmake, patch, git, texinfo, flex, bison, gettext, wget, gsl, gmp, mpfr, mpc, readline, libarchive, gpgme, bash, openssl and libtool if you don't have those.
+1.  Install bg++/gcc-c++, gcc/clang, autoconf, automake, make, cmake, patch, git, texinfo, flex, bison, gettext, wget, gsl, gmp, gpmdev, mpfr, mpc, python3, py3-pip, pkgconfig, readline, libarchive, gpgme, bash, openssl and libtool if you don't have those.
 We offer a script to help you for installing dependencies:
 
 ### Ubuntu/Debian, Fedora, OSX
