@@ -1,8 +1,12 @@
 #!/bin/bash
 # toolchain.sh by fjtrujy
 
-## Enter the pspdev directory.
-cd "$(dirname "$0")" || { echo "ERROR: Could not enter the pspdev directory."; exit 1; }
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${ROOT}/install-permissions.sh"
+pspdev_require_unprivileged_build || exit 1
+
+## Enter the psp-toolchain directory.
+cd "${ROOT}" || { echo "ERROR: Could not enter the psp-toolchain directory."; exit 1; }
 
 ## Create the build directory.
 mkdir -p build || { echo "ERROR: Could not create the build directory."; exit 1; }
@@ -48,8 +52,4 @@ else
 fi
 
 ## Store build information
-BUILD_FILE="${PSPDEV}/build.txt"
-if [[ -f "${BUILD_FILE}" ]]; then
-  sed -i'' '/^psp-toolchain /d' "${BUILD_FILE}"
-fi
-git log -1 --format="psp-toolchain %H %cs %s" >> "${BUILD_FILE}"
+pspdev_record_build_info "psp-toolchain" "$(git log -1 --format="psp-toolchain %H %cs %s")"
