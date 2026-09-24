@@ -46,6 +46,28 @@ export PATH=$PATH:$PSPDEV/bin
 ./toolchain.sh
 ```
 
+## Prebuilt releases
+
+Prebuilt releases are intended for users and CI jobs that do not need to rebuild the compiler toolchain from source.
+
+The current prebuilt target is **Ubuntu x86_64**. Prebuilt archives are built for the fixed installation prefix:
+
+```bash
+/opt/pspdev
+```
+
+Install a downloaded release archive with:
+
+```bash
+sudo tar -xzf psp-toolchain-ubuntu-x86_64.tar.gz -C /opt
+export PSPDEV=/opt/pspdev
+export PATH="$PSPDEV/bin:$PATH"
+```
+
+The archive contains the installed `pspdev/` prefix and must be extracted under `/opt`, producing `/opt/pspdev`.
+
+This does **not** change source builds. When building this repository locally with `./toolchain.sh`, the installation location continues to be whatever absolute path you set in `$PSPDEV`.
+
 ## Thanks
 
 Visit the following sites to learn more:

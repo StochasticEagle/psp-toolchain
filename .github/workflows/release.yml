@@ -1,0 +1,70 @@
+name: Release prebuilt toolchain
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to create
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: psp-toolchain-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          submodules: recursive
+
+      - name: Install host dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autoconf automake bison build-essential cmake fakeroot flex gawk gettext \
+            git libarchive-dev libarchive-tools libcurl4-openssl-dev libgmp-dev \
+            libgpgme-dev libgsl-dev libmpc-dev libmpfr-dev libreadline-dev \
+            libssl-dev libtool libtool-bin libusb-dev meson ninja-build patch pkg-config \
+            python3 python3-jinja2 python3-jsonschema texinfo wget xz-utils zlib1g-dev
+
+      - name: Prepare prebuilt installation prefix
+        run: |
+          sudo rm -rf /opt/pspdev
+          sudo mkdir -p /opt/pspdev
+          sudo chown -R "$(id -u):$(id -g)" /opt/pspdev
+          echo "PSPDEV=/opt/pspdev" >> "$GITHUB_ENV"
+          echo "/opt/pspdev/bin" >> "$GITHUB_PATH"
+
+      - name: Build PSP toolchain
+        run: |
+          export PSPDEV=/opt/pspdev
+          export PATH="$PSPDEV/bin:$PATH"
+          ./toolchain.sh
+
+      - name: Verify prebuilt toolchain
+        run: |
+          export PSPDEV=/opt/pspdev
+          export PATH="$PSPDEV/bin:$PATH"
+          test "$(psp-gcc -dumpmachine)" = "psp"
+          printf '#include <stdint.h>\nint main(void){return 0;}\n' | psp-gcc -x c -c -o "$RUNNER_TEMP/psp-toolchain-smoke.o" -
+
+      - name: Archive prebuilt toolchain
+        run: tar -czf "$RUNNER_TEMP/psp-toolchain-ubuntu-x86_64.tar.gz" -C /opt pspdev
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ inputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: PSP toolchain ${{ inputs.tag }}
+          generate_release_notes: true
+          make_latest: true
+          files: ${{ runner.temp }}/psp-toolchain-ubuntu-x86_64.tar.gz
