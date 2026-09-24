@@ -1,5 +1,7 @@
 # psptoolchain
 
+[![CI](https://img.shields.io/github/actions/workflow/status/StochasticEagle/psp-toolchain/.github/workflows/release.yml?branch=dev%2Ffork&style=for-the-badge&logo=github&label=CI)](https://github.com/StochasticEagle/psp-toolchain/actions/workflows/release.yml)
+
 
 This program will automatically build and install the whole compiler and other tools used in the creation of homebrew software for the Sony PlayStation Portable® videogame system.
 
