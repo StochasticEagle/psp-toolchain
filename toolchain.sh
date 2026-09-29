@@ -1,7 +1,7 @@
 #!/bin/bash
 # toolchain.sh by fjtrujy
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 source "${ROOT}/install-permissions.sh"
 
 ## Enter the psp-toolchain directory.
