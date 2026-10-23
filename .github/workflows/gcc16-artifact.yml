@@ -1,0 +1,85 @@
+name: GCC 16.2 toolchain artifact
+
+on:
+  push:
+    branches: [gcc-16.2]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gcc16-toolchain-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  toolchain:
+    if: github.ref == 'refs/heads/gcc-16.2'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    env:
+      PSPDEV: /opt/pspdev
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          submodules: false
+
+      - name: Fetch pinned toolchain sources shallowly
+        run: |
+          set -euo pipefail
+          git -c remote.origin.tagOpt=--no-tags submodule update --init --recursive --depth 1 \
+            components/psp-toolchain-allegrex components/psp-pacman
+          test "$(cat components/psp-toolchain-allegrex/components/gcc/gcc/BASE-VER)" = 16.2.0
+          git submodule status --recursive
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            autoconf automake bison build-essential cmake fakeroot flex gawk gettext \
+            git libarchive-dev libarchive-tools libcurl4-openssl-dev libgmp-dev \
+            libgpgme-dev libgsl-dev libmpc-dev libmpfr-dev libreadline-dev \
+            libssl-dev libtool libtool-bin libusb-dev meson ninja-build patch \
+            pkg-config python3 python3-jinja2 python3-jsonschema texinfo wget \
+            xz-utils zlib1g-dev
+
+      - name: Build pinned GCC 16.2 toolchain once
+        run: |
+          set -euo pipefail
+          sudo mkdir -p "$PSPDEV"
+          sudo chown -R "$(id -u):$(id -g)" "$PSPDEV"
+          export PATH="$PSPDEV/bin:$PATH"
+          ./toolchain.sh
+
+      - name: Validate GCC and record upstream provenance
+        run: |
+          set -euo pipefail
+          export PATH="$PSPDEV/bin:$PATH"
+          test "$(psp-gcc -dumpmachine)" = psp
+          test "$(psp-gcc -dumpfullversion)" = 16.2.0
+          printf '#include <stdint.h>\nint probe(uint32_t x) { return (int)x; }\n' |
+            psp-gcc -O2 -x c -c -o "$RUNNER_TEMP/gcc16-c.o" -
+          printf '#include <vector>\nint probe() { std::vector<int> v{1,2}; return v[0]; }\n' |
+            psp-g++ -std=c++20 -x c++ -c -o "$RUNNER_TEMP/gcc16-cxx.o" -
+          mkdir -p "$PSPDEV/share/psp-ci"
+          {
+            printf 'format=1\n'
+            printf 'toolchain_commit=%s\n' "$GITHUB_SHA"
+            printf 'allegrex_commit=%s\n' "$(git -C components/psp-toolchain-allegrex rev-parse HEAD)"
+            printf 'gcc_commit=%s\n' "$(git -C components/psp-toolchain-allegrex/components/gcc rev-parse HEAD)"
+            printf 'compiler=%s\n' "$(psp-gcc -dumpfullversion)"
+          } > "$PSPDEV/share/psp-ci/toolchain-source.txt"
+
+      - name: Package complete validated installation
+        run: |
+          tar -czf "$RUNNER_TEMP/gcc16-toolchain.tar.gz" -C /opt pspdev
+          tar -tzf "$RUNNER_TEMP/gcc16-toolchain.tar.gz" |
+            grep -Fxq 'pspdev/share/psp-ci/toolchain-source.txt'
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: gcc16-toolchain-ubuntu-x86_64
+          path: ${{ runner.temp }}/gcc16-toolchain.tar.gz
+          if-no-files-found: error
+          retention-days: 30
