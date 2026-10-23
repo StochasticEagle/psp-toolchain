@@ -58,6 +58,14 @@ jobs:
           export PATH="$PSPDEV/bin:$PATH"
           test "$(psp-gcc -dumpmachine)" = psp
           test "$(psp-gcc -dumpfullversion)" = 16.2.0
+          # Catch ABI divergence before publishing a toolchain artifact.
+          # Production PSPDEV uses MIPS EABI32, not O32.
+          printf 'int psp_abi_probe(void) { return 42; }\n' |
+            psp-gcc -x c -c -o "$RUNNER_TEMP/gcc16-abi.o" -
+          psp-readelf -h "$RUNNER_TEMP/gcc16-abi.o" | grep -iq 'eabi32'
+          psp-gcc -nostdlib -r -o "$RUNNER_TEMP/gcc16-abi-linked.o" \
+            "$RUNNER_TEMP/gcc16-abi.o" "$(psp-gcc -print-file-name=crtbegin.o)"
+          psp-readelf -h "$RUNNER_TEMP/gcc16-abi-linked.o" | grep -iq 'eabi32'
           for part in crtbegin.o crtend.o crti.o crtn.o; do
             resolved="$(psp-gcc -print-file-name="$part")"
             if [[ ! -f "$resolved" ]]; then
