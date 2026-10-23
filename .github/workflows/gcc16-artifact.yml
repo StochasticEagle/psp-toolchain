@@ -58,6 +58,14 @@ jobs:
           export PATH="$PSPDEV/bin:$PATH"
           test "$(psp-gcc -dumpmachine)" = psp
           test "$(psp-gcc -dumpfullversion)" = 16.2.0
+          for part in crtbegin.o crtend.o crti.o crtn.o; do
+            resolved="$(psp-gcc -print-file-name="$part")"
+            if [[ ! -f "$resolved" ]]; then
+              echo "::error::GCC 16.2 installed without required PSP startup object $part ($resolved)"
+              exit 1
+            fi
+            echo "$part: $resolved"
+          done
           printf '#include <stdint.h>\nint probe(uint32_t x) { return (int)x; }\n' |
             psp-gcc -O2 -x c -c -o "$RUNNER_TEMP/gcc16-c.o" -
           printf '#include <vector>\nint probe() { std::vector<int> v{1,2}; return v[0]; }\n' |
